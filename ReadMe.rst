@@ -161,7 +161,5 @@ Reference
 
 或者手机QQ扫码加入：
 
-qq群：
-
 .. image:: ./images/qq-group-592109504.jpg
 
