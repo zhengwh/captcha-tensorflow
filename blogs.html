@@ -1,0 +1,475 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.13.1: http://docutils.sourceforge.net/" />
+<title>基于tensorflow的‘端到端’的字符型验证码识别</title>
+<style type="text/css">
+
+/*
+:Author: David Goodger (goodger@python.org)
+:Id: $Id: html4css1.css 7952 2016-07-26 18:15:59Z milde $
+:Copyright: This stylesheet has been placed in the public domain.
+
+Default cascading style sheet for the HTML output of Docutils.
+
+See http://docutils.sf.net/docs/howto/html-stylesheets.html for how to
+customize this style sheet.
+*/
+
+/* used to remove borders from tables and images */
+.borderless, table.borderless td, table.borderless th {
+  border: 0 }
+
+table.borderless td, table.borderless th {
+  /* Override padding for "table.docutils td" with "! important".
+     The right padding separates the table cells. */
+  padding: 0 0.5em 0 0 ! important }
+
+.first {
+  /* Override more specific margin styles with "! important". */
+  margin-top: 0 ! important }
+
+.last, .with-subtitle {
+  margin-bottom: 0 ! important }
+
+.hidden {
+  display: none }
+
+.subscript {
+  vertical-align: sub;
+  font-size: smaller }
+
+.superscript {
+  vertical-align: super;
+  font-size: smaller }
+
+a.toc-backref {
+  text-decoration: none ;
+  color: black }
+
+blockquote.epigraph {
+  margin: 2em 5em ; }
+
+dl.docutils dd {
+  margin-bottom: 0.5em }
+
+object[type="image/svg+xml"], object[type="application/x-shockwave-flash"] {
+  overflow: hidden;
+}
+
+/* Uncomment (and remove this text!) to get bold-faced definition list terms
+dl.docutils dt {
+  font-weight: bold }
+*/
+
+div.abstract {
+  margin: 2em 5em }
+
+div.abstract p.topic-title {
+  font-weight: bold ;
+  text-align: center }
+
+div.admonition, div.attention, div.caution, div.danger, div.error,
+div.hint, div.important, div.note, div.tip, div.warning {
+  margin: 2em ;
+  border: medium outset ;
+  padding: 1em }
+
+div.admonition p.admonition-title, div.hint p.admonition-title,
+div.important p.admonition-title, div.note p.admonition-title,
+div.tip p.admonition-title {
+  font-weight: bold ;
+  font-family: sans-serif }
+
+div.attention p.admonition-title, div.caution p.admonition-title,
+div.danger p.admonition-title, div.error p.admonition-title,
+div.warning p.admonition-title, .code .error {
+  color: red ;
+  font-weight: bold ;
+  font-family: sans-serif }
+
+/* Uncomment (and remove this text!) to get reduced vertical space in
+   compound paragraphs.
+div.compound .compound-first, div.compound .compound-middle {
+  margin-bottom: 0.5em }
+
+div.compound .compound-last, div.compound .compound-middle {
+  margin-top: 0.5em }
+*/
+
+div.dedication {
+  margin: 2em 5em ;
+  text-align: center ;
+  font-style: italic }
+
+div.dedication p.topic-title {
+  font-weight: bold ;
+  font-style: normal }
+
+div.figure {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+div.footer, div.header {
+  clear: both;
+  font-size: smaller }
+
+div.line-block {
+  display: block ;
+  margin-top: 1em ;
+  margin-bottom: 1em }
+
+div.line-block div.line-block {
+  margin-top: 0 ;
+  margin-bottom: 0 ;
+  margin-left: 1.5em }
+
+div.sidebar {
+  margin: 0 0 0.5em 1em ;
+  border: medium outset ;
+  padding: 1em ;
+  background-color: #ffffee ;
+  width: 40% ;
+  float: right ;
+  clear: right }
+
+div.sidebar p.rubric {
+  font-family: sans-serif ;
+  font-size: medium }
+
+div.system-messages {
+  margin: 5em }
+
+div.system-messages h1 {
+  color: red }
+
+div.system-message {
+  border: medium outset ;
+  padding: 1em }
+
+div.system-message p.system-message-title {
+  color: red ;
+  font-weight: bold }
+
+div.topic {
+  margin: 2em }
+
+h1.section-subtitle, h2.section-subtitle, h3.section-subtitle,
+h4.section-subtitle, h5.section-subtitle, h6.section-subtitle {
+  margin-top: 0.4em }
+
+h1.title {
+  text-align: center }
+
+h2.subtitle {
+  text-align: center }
+
+hr.docutils {
+  width: 75% }
+
+img.align-left, .figure.align-left, object.align-left, table.align-left {
+  clear: left ;
+  float: left ;
+  margin-right: 1em }
+
+img.align-right, .figure.align-right, object.align-right, table.align-right {
+  clear: right ;
+  float: right ;
+  margin-left: 1em }
+
+img.align-center, .figure.align-center, object.align-center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+table.align-center {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.align-left {
+  text-align: left }
+
+.align-center {
+  clear: both ;
+  text-align: center }
+
+.align-right {
+  text-align: right }
+
+/* reset inner alignment in figures */
+div.align-right {
+  text-align: inherit }
+
+/* div.align-center * { */
+/*   text-align: left } */
+
+.align-top    {
+  vertical-align: top }
+
+.align-middle {
+  vertical-align: middle }
+
+.align-bottom {
+  vertical-align: bottom }
+
+ol.simple, ul.simple {
+  margin-bottom: 1em }
+
+ol.arabic {
+  list-style: decimal }
+
+ol.loweralpha {
+  list-style: lower-alpha }
+
+ol.upperalpha {
+  list-style: upper-alpha }
+
+ol.lowerroman {
+  list-style: lower-roman }
+
+ol.upperroman {
+  list-style: upper-roman }
+
+p.attribution {
+  text-align: right ;
+  margin-left: 50% }
+
+p.caption {
+  font-style: italic }
+
+p.credits {
+  font-style: italic ;
+  font-size: smaller }
+
+p.label {
+  white-space: nowrap }
+
+p.rubric {
+  font-weight: bold ;
+  font-size: larger ;
+  color: maroon ;
+  text-align: center }
+
+p.sidebar-title {
+  font-family: sans-serif ;
+  font-weight: bold ;
+  font-size: larger }
+
+p.sidebar-subtitle {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+p.topic-title {
+  font-weight: bold }
+
+pre.address {
+  margin-bottom: 0 ;
+  margin-top: 0 ;
+  font: inherit }
+
+pre.literal-block, pre.doctest-block, pre.math, pre.code {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+pre.code .ln { color: grey; } /* line numbers */
+pre.code, code { background-color: #eeeeee }
+pre.code .comment, code .comment { color: #5C6576 }
+pre.code .keyword, code .keyword { color: #3B0D06; font-weight: bold }
+pre.code .literal.string, code .literal.string { color: #0C5404 }
+pre.code .name.builtin, code .name.builtin { color: #352B84 }
+pre.code .deleted, code .deleted { background-color: #DEB0A1}
+pre.code .inserted, code .inserted { background-color: #A3D289}
+
+span.classifier {
+  font-family: sans-serif ;
+  font-style: oblique }
+
+span.classifier-delimiter {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+span.interpreted {
+  font-family: sans-serif }
+
+span.option {
+  white-space: nowrap }
+
+span.pre {
+  white-space: pre }
+
+span.problematic {
+  color: red }
+
+span.section-subtitle {
+  /* font-size relative to parent (h1..h6 element) */
+  font-size: 80% }
+
+table.citation {
+  border-left: solid 1px gray;
+  margin-left: 1px }
+
+table.docinfo {
+  margin: 2em 4em }
+
+table.docutils {
+  margin-top: 0.5em ;
+  margin-bottom: 0.5em }
+
+table.footnote {
+  border-left: solid 1px black;
+  margin-left: 1px }
+
+table.docutils td, table.docutils th,
+table.docinfo td, table.docinfo th {
+  padding-left: 0.5em ;
+  padding-right: 0.5em ;
+  vertical-align: top }
+
+table.docutils th.field-name, table.docinfo th.docinfo-name {
+  font-weight: bold ;
+  text-align: left ;
+  white-space: nowrap ;
+  padding-left: 0 }
+
+/* "booktabs" style (no vertical lines) */
+table.docutils.booktabs {
+  border: 0px;
+  border-top: 2px solid;
+  border-bottom: 2px solid;
+  border-collapse: collapse;
+}
+table.docutils.booktabs * {
+  border: 0px;
+}
+table.docutils.booktabs th {
+  border-bottom: thin solid;
+  text-align: left;
+}
+
+h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
+h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
+  font-size: 100% }
+
+ul.auto-toc {
+  list-style-type: none }
+
+</style>
+</head>
+<body>
+<div class="document" id="tensorflow">
+<h1 class="title">基于tensorflow的‘端到端’的字符型验证码识别</h1>
+
+<!-- .. contents:: 目录 -->
+<div class="section" id="abstract">
+<h1>1&nbsp;&nbsp;&nbsp;Abstract</h1>
+<p>验证码（CAPTCHA）的诞生本身是为了自动区分 <strong>自然人</strong> 和 <strong>机器人</strong> 的一套公开方法，
+但是近几年的人工智能技术的发展，传统的字符验证已经形同虚设。
+所以，大家一方面研究和学习此代码时，另外一方面也要警惕自己的互联网系统的web安全问题。</p>
+<p>Keywords: 人工智能,Python,字符验证码,CAPTCHA,识别,tensorflow,CNN,深度学习</p>
+</div>
+<div class="section" id="introduction">
+<h1>2&nbsp;&nbsp;&nbsp;Introduction</h1>
+<p>全自动区分计算机和人类的公开图灵测试（英语：Completely Automated Public Turing test to tell Computers and Humans Apart，簡稱CAPTCHA），俗称验证码，是一种区分用户是计算机或人的公共全自动程序 <a class="footnote-reference" href="#captcha-wiki" id="id1">[1]</a>。</p>
+<p>得益于基于卷积神经网络CNN的人工智能技术的发展，目前基于主流的深度学习框架的直接开发出 <strong>端到端不分割</strong> 的识别方式，而且在没有经过太多trick的情况下，已经可以达到95%以上的识别率。</p>
+<p>传统的机器学习方法，对于多位字符验证码都是采用的 <strong>化整为零</strong> 的方法：先分割成最小单位，再分别识别，然后再统一。
+卷积神经网络方法，直接采用 <strong>端到端不分割</strong> 的方法：输入整张图片，输出整个图片的标记结果，具有更强的通用性。</p>
+<p>具体的区别如下图：</p>
+<img alt="./images/two-ways-to-hack-captcha.png" src="./images/two-ways-to-hack-captcha.png" />
+<p><strong>端到端</strong> 的识别方法显然更具备优势，因为目前的字符型验证码为了防止被识别，多位字符已经完全融合粘贴在一起了，利用传统的技术基本很难实现分割了。本文重点推荐的就是 <strong>端到端</strong> 的方法。</p>
+</div>
+<div class="section" id="id2">
+<h1>3&nbsp;&nbsp;&nbsp;引用声明</h1>
+<p>本文的绝大部分思路和代码都参考自此文：</p>
+<pre class="code literal-block">
+http://blog.topspeedsnail.com/archives/10858
+</pre>
+<p>感谢：斗大的熊猫--《WTF Daily Blog》</p>
+<p>本项目主要解决的问题是对某一模式的字符型验证进行端到端的识别。</p>
+<p>输入内容：</p>
+<img alt="./images/tf-captcha-python.png" src="./images/tf-captcha-python.png" />
+<p>模型预测结果：</p>
+<img alt="./images/tf-captcha-python-result.png" src="./images/tf-captcha-python-result.png" />
+</div>
+<div class="section" id="id3">
+<h1>4&nbsp;&nbsp;&nbsp;本文工作</h1>
+<ul class="simple">
+<li>解释了原作者代码注释中提到的关于sigmoid选型的困惑问题并应用到代码中</li>
+<li>将原作者的代码进行模块工程化，成为整体项目，方便研究的同学直接进行模式套用</li>
+</ul>
+<p>原作者代码中：</p>
+<pre class="code literal-block">
+def train_crack_captcha_cnn():
+    output = crack_captcha_cnn()
+    # loss
+    #loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(output, Y))
+    loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=output, labels=Y))
+        # 最后一层用来分类的softmax和sigmoid有什么不同？
+    # optimizer 为了加快训练 learning_rate应该开始大，然后慢慢衰
+    optimizer = tf.train.AdamOptimizer(learning_rate=0.001).minimize(loss)
+    ……
+</pre>
+<p>作者在代码的注释中出提出了这样的疑问:</p>
+<p>对 <strong>softmax</strong> 和 <strong>sigmoid</strong> 的使用方式有疑问。</p>
+<p>然后在文章下面读者评论区也都提到了此问题，在此进行整体解释一下。</p>
+<p>原文中CNN的输出的维度是 <strong>MAX_CAPTCHA*CHAR_SET_LEN</strong> ，其实这些维度并不都是完全独立分布的，
+但是使用sigmoid loss也是仍然可以的，相当于先用sigmoid进行了一次归一化，然后再将各个维度的值向目标值进行 <strong>回归</strong> ，
+最后loss越小，两个向量的对应的值也越接近。 <strong>其实sigmoid是可以看成是一个多分类的问题，在这个例子上也能起到比较好的收敛效果</strong>。</p>
+<p>当然，关于分类的问题，看所有的机器学习框架里面，都是建议使用softmax进行最后的归一化操作，这其实相当于是一种 <strong>马太效应</strong> :
+让可能性大的分类的值变得更大，让可能性小的分量值变得更小。但是这有个前提，就是参与到softmax运算的一组数据，必须是 <strong>相关联</strong> 的，
+所以如果要使用 <strong>softmax_cross_entropy_with_logits</strong> ，只需要将网络进行简单修改即可。把输出的维度做成二维[MAX_CAPTCHA, CHAR_SET_LEN],
+然后使用softmax loss。</p>
+<pre class="code literal-block">
+output = crack_captcha_cnn()#36×4
+predict = tf.reshape(output, [-1, MAX_CAPTCHA, CHAR_SET_LEN])  # 36行，4列
+label = tf.reshape(Y, [-1, MAX_CAPTCHA, CHAR_SET_LEN])
+</pre>
+<p>最后使用GPU训练的实验结果对比：</p>
+<ul class="simple">
+<li>sigmoid方式。训练6000个step就能达到95%的准确率。</li>
+<li>softmax方式。训练8千个step，达到90%的准确率;训练8万个step，达到94.7%（跑了大半天）</li>
+</ul>
+<p>使用tensorboard对accuracy进行监控：</p>
+<p>sigmoid-6千个step:</p>
+<img alt="./images/2017-06-20-sigmoid-6k.png" src="./images/2017-06-20-sigmoid-6k.png" />
+<p>softmax-8千个step:</p>
+<img alt="./images/2017-06-22-softmax-8k.png" src="./images/2017-06-22-softmax-8k.png" />
+<p>softmax-8万个step:</p>
+<img alt="./images/2017-06-23-softmax-8w.png" src="./images/2017-06-23-softmax-8w.png" />
+<p>整体来说，在这个例子里面，好像 sigmoid的收敛速度快些，当然这个可能是本项目里面的外界因素有利于sigmoid吧，至于具体原因，等后续再进行研究和解释吧，当然有可能根本解释不了，因为对于CNN，目前主流的意见都是：，反正效果就是好，但是不知道为啥， <strong>科幻得近于玄幻</strong> 的一种技术。</p>
+<p>项目文件介绍：</p>
+<ul class="simple">
+<li>cfg.py 配置信息文件</li>
+<li>cnn_sys.py CNN网络结构</li>
+<li>data_iter.py 可迭代的数据集</li>
+<li>gen_captcha.py 验证码生成器，直接使用程序生成带标记的数据</li>
+<li>predict.py 加载训练好的模型，然后对输入的图片进行预测</li>
+<li>train.py 对模型进行训练</li>
+<li>utils.py 一些公共使用的方法</li>
+</ul>
+</div>
+<div class="section" id="id4">
+<h1>5&nbsp;&nbsp;&nbsp;小结</h1>
+<p>本文主要只写原作者没有提到的内容，想了解原文的，可以直接去原作者页面。</p>
+</div>
+<div class="section" id="reference">
+<h1>6&nbsp;&nbsp;&nbsp;Reference</h1>
+<table class="docutils footnote" frame="void" id="captcha-wiki" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>wiki-CAPTCHA <a class="reference external" href="https://en.wikipedia.org/wiki/CAPTCHA">https://en.wikipedia.org/wiki/CAPTCHA</a></td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="id5">
+<h1>7&nbsp;&nbsp;&nbsp;后续交流</h1>
+<p>如果有对相关技术有持续关注的兴趣的同学，欢迎加入QQ群： 592109504</p>
+<p>或者手机QQ扫码加入：</p>
+<img alt="./images/qq-group-592109504.jpg" src="./images/qq-group-592109504.jpg" />
+</div>
+</div>
+</body>
+</html>
