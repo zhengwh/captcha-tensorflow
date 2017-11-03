@@ -163,3 +163,13 @@ Reference
 
 .. image:: ./images/qq-group-592109504.jpg
 
+友情链接 
+=============
+
+
+有朋友在此基础上，做了个中文汉字验证码的分类项目，请移步：
+
+.. code::
+
+    https://github.com/wang5150753/tensorflow
+
